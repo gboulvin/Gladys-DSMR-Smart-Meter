@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.0] - 2026-10-14
+
 ### Added
 
 - First release of the DSMR Smart Meter integration: reads the P1 port of DSMR
@@ -33,4 +35,5 @@ the notes of the version's GitHub Release.
 - "Test the connection" button in the configuration screen.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/commits/main
+[Unreleased]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/releases/tag/v1.0.0
