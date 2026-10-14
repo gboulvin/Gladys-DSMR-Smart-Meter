@@ -1,0 +1,134 @@
+# DSMR Smart Meter
+
+Diese Integration liest Ihren **DSMR-Smart-Meter über seinen P1-Port** aus:
+den bezogenen und ins Netz eingespeisten Strom, die Messwerte jeder Phase sowie
+die an den Stromzähler angeschlossenen **Gas- und Wasserzähler**. Alles bleibt
+in Ihrem lokalen Netzwerk: keine Cloud, kein Konto.
+
+## Ist mein Zähler kompatibel?
+
+| Land        | Kompatible Zähler                                                                                          |
+| ----------- | ---------------------------------------------------------------------------------------------------------- |
+| Niederlande | Alle Smart Meter (DSMR 2.2 bis 5.0.2)                                                                      |
+| Belgien     | Digitale Zähler (Fluvius, Sibelga, ORES, RESA) — **P1-Port im Kundenportal des Netzbetreibers aktivieren** |
+| Luxemburg   | Smarty-Zähler — den **Entschlüsselungsschlüssel** Ihres Zählers bei **Creos** anfordern                    |
+| Schweden    | Zähler mit **HAN-Port** (P1-Format) — Aktivierung beim Netzbetreiber beantragen                            |
+| Ungarn      | Smart Meter von E.ON und MVM mit P1-Port                                                                   |
+
+Nicht kompatibel: der französische Linky (nutzen Sie eine
+Teleinformation-Integration) sowie deutsche, spanische, österreichische,
+schweizerische, norwegische und dänische Zähler, die andere Protokolle
+verwenden.
+
+## Was Sie brauchen
+
+Einen **P1-Leser** im Netzwerk, angeschlossen an den P1-Port (RJ12-Buchse) des
+Zählers:
+
+- einen WLAN-/Ethernet-**P1-Dongle**, der die Rohtelegramme über einen
+  TCP-Port ausgibt (suchen Sie in der Anleitung nach einem Modus „TCP",
+  „Socket", „Telnet" oder „Raw Telegram"), oder eine ESPHome-/Tasmota-P1-Brücke,
+  die dasselbe tut;
+- einen **HomeWizard Wi-Fi P1 Meter**: aktivieren Sie die **lokale API** in der
+  HomeWizard-App (Einstellungen → Zähler → Ihr Zähler → Lokale API);
+- ein **USB-P1-Kabel** an einem beliebigen Rechner im Netzwerk (auch dem, auf
+  dem Gladys läuft), per **ser2net** im Netzwerk freigegeben — eine fertige
+  Konfiguration finden Sie in der
+  [README](https://github.com/gboulvin/Gladys-DSMR-Smart-Meter#compatible-p1-readers).
+
+## Konfiguration
+
+1. Öffnen Sie den Reiter **Konfiguration** der Integration.
+2. Wählen Sie die **Verbindungsart**:
+   - **TCP-Stream**: Geben Sie die **IP-Adresse** des Lesers und seinen
+     **Port** ein (23 bei den meisten Dongles, der für ser2net gewählte Port);
+   - **HTTP**: Geben Sie die **Telegramm-URL** ein, z. B.
+     `http://192.168.1.50/api/v1/telegram` für einen HomeWizard.
+3. **Nur Luxemburg**: Geben Sie den 32-stelligen **Entschlüsselungsschlüssel**
+   von Creos ein. In allen anderen Ländern das Feld leer lassen.
+4. Das **Aktualisierungsintervall** (standardmäßig 10 s) legt fest, wie oft die
+   Messwerte an Gladys gesendet werden. Szenen-Auslöser reagieren unabhängig
+   davon auf jedes Telegramm.
+5. Speichern und dann auf **Verbindung testen** klicken: Die Integration wartet
+   auf das nächste Telegramm und zeigt Zählernummer, DSMR-Version und
+   Zählerstände an.
+6. Öffnen Sie den Reiter **Erkennung** und fügen Sie die Geräte hinzu: den
+   Stromzähler sowie die Gas- und Wasserzähler, sofern Ihr Zähler sie
+   weiterleitet.
+
+## Geräte
+
+**Stromzähler (P1)** — es werden nur die Messwerte angelegt, die Ihr Zähler
+liefert:
+
+- Bezugs- und Einspeiseleistung (W), gesamt und je Phase;
+- Bezugszählerstand je Tarif (kWh) — oder ein einziger Gesamtzählerstand
+  (Schweden, Luxemburg). Diese Zählerstände speisen das **Energie-Monitoring**
+  von Gladys: Verbrauch je halbe Stunde, je Tag und Kosten gemäß Ihrem Vertrag;
+- Einspeisezählerstände (kWh), für Häuser mit Solaranlage;
+- Spannung (V) und Strom (A) je Phase;
+- aktueller Tarif (1 oder 2). Niederlande: 1 = Niedertarif (Nacht/Wochenende),
+  2 = Normaltarif. Belgien: 1 = Tag, 2 = Nacht;
+- Belgien: **15-Minuten-Durchschnittsleistung** und **Monatsspitze**, die
+  Grundlage des Kapazitätstarifs.
+
+**Gaszähler (P1)** und **Wasserzähler (P1)** — der Zählerstand in m³. Ein
+DSMR-5-Zähler aktualisiert den Gaszählerstand alle 5 Minuten, ältere Zähler
+stündlich.
+
+## Szenen
+
+In der Kategorie **Integrationen** des Szenen-Editors (Gladys 5.1 oder neuer):
+
+Auslöser:
+
+- **Stromtarif gewechselt** — z. B. die Spülmaschine starten, wenn der
+  günstigere Tarif beginnt. Der neue Tarif steht in
+  `{{triggerEvent.data.tariff}}` zur Verfügung.
+- **Netzeinspeisung begonnen oder beendet** — Ihr Haus beginnt, seinen
+  Solarüberschuss ins Netz einzuspeisen (oder bezieht wieder Strom). Der
+  Wechsel muss 30 Sekunden andauern, damit eine vorbeiziehende Wolke ihn nicht
+  auslöst. Die Leistung steht in `{{triggerEvent.data.power}}` zur Verfügung.
+- **Stromausfall erkannt** — der Zähler hat einen neuen Stromausfall gezählt
+  (der Auslöser feuert, sobald Strom und Leser zurück sind).
+- **Neue monatliche Lastspitze** (Belgien) — warnt Sie, wenn die
+  15-Minuten-Durchschnittsleistung den Monatsrekord übertrifft, was den
+  Kapazitätstarif erhöht.
+
+Aktionen:
+
+- **P1-Zähler auslesen** — übergibt den folgenden Aktionen die Bezugs- und
+  Einspeiseleistung, die Zählerstände, den Tarif sowie Gas- und
+  Wasserzählerstand.
+- **Energiebilanz von heute** — übergibt den heutigen Bezug, die Einspeisung,
+  Gas, Wasser und die Spitzenleistung, z. B. für eine Nachricht am Abend.
+
+## Dashboard
+
+Im Dashboard-Editor stehen zwei Widgets zur Verfügung:
+
+- **P1-Zähler: Übersicht**: aktuelle Bezugs- und Einspeiseleistung,
+  Gaszählerstand, heutige Summen, aktueller Tarif, Verbindungsstatus und ein
+  Leistungsdiagramm (Zeitraum wählbar).
+- **P1-Zähler: Phasen**: Strom jeder Phase auf einer Anzeige, skaliert auf Ihre
+  Absicherung (in den Widget-Einstellungen festlegen, z. B. 25 A oder 40 A),
+  Spannungen, Spannungseinbrüche und -spitzen, Stromausfälle.
+
+## Fehlerbehebung
+
+- **„P1-Leser nicht erreichbar"**: Prüfen Sie IP-Adresse und Port und ob der
+  Leser im selben Netzwerk wie Gladys ist. Die meisten P1-Leser akzeptieren
+  **nur eine Verbindung**: Schließen Sie andere verbundene Software (Home
+  Assistant, Domoticz…) oder nutzen Sie die Mehrbenutzer-Option des Lesers.
+- **Kein Telegramm über USB-Kabel mit ser2net**: Prüfen Sie die seriellen
+  Einstellungen — 115200 8N1 für DSMR 4/5, 9600 7E1 für DSMR 2.2/3.0.
+- **Belgien: keine Daten**: Der P1-Port ist standardmäßig deaktiviert —
+  aktivieren Sie ihn im Kundenportal Ihres Netzbetreibers.
+- **Luxemburg: „können nicht entschlüsselt werden"**: Der
+  Entschlüsselungsschlüssel ist falsch oder unvollständig (32
+  Hexadezimalzeichen).
+- **Beschädigte Telegramme** werden dank ihrer Prüfsumme (CRC) verworfen:
+  Kommt das häufig vor, prüfen Sie das Kabel und das WLAN-Signal des Lesers.
+
+Die Integration protokolliert alles, was sie tut: Prüfen Sie ihre Logs in der
+Gladys-Oberfläche.

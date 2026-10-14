@@ -1,0 +1,739 @@
+{
+  "manifest_version": 1,
+  "type": "device",
+  "name": "DSMR Smart Meter",
+  "description": {
+    "en": "Read your DSMR smart meter (electricity, gas, water) through its P1 port.",
+    "fr": "Lisez votre compteur DSMR (électricité, gaz, eau) via son port P1.",
+    "de": "Lesen Sie Ihren DSMR-Zähler (Strom, Gas, Wasser) über den P1-Port aus.",
+    "es": "Lea su contador DSMR (electricidad, gas, agua) a través del puerto P1."
+  },
+  "version": "1.0.0",
+  "docker_image": "ghcr.io/gboulvin/gladys-dsmr-smart-meter:1.0.0",
+  "gladys_version": ">=5.1.0",
+  "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-DSMR-Smart-Meter/main/cover.png",
+  "categories": ["energy"],
+  "transports": ["local"],
+  "config_schema": [
+    {
+      "key": "intro",
+      "type": "section",
+      "label": {
+        "en": "Connect your P1 reader",
+        "fr": "Connectez votre lecteur P1",
+        "de": "P1-Leser verbinden",
+        "es": "Conecte su lector P1"
+      },
+      "description": {
+        "en": "DSMR smart meters (Netherlands, Belgium, Luxembourg, Sweden, Hungary) publish their readings on the P1 port. Plug a network P1 reader into it (Wi-Fi P1 dongle, HomeWizard P1 meter, or a USB P1 cable shared with ser2net), then enter its address below. The gas and water meters relayed by the electricity meter are detected automatically.",
+        "fr": "Les compteurs communicants DSMR (Pays-Bas, Belgique, Luxembourg, Suède, Hongrie) publient leurs mesures sur le port P1. Branchez-y un lecteur P1 réseau (dongle P1 Wi-Fi, HomeWizard P1 meter, ou câble USB P1 partagé avec ser2net), puis saisissez son adresse ci-dessous. Les compteurs de gaz et d'eau relayés par le compteur électrique sont détectés automatiquement.",
+        "de": "DSMR-Smart-Meter (Niederlande, Belgien, Luxemburg, Schweden, Ungarn) geben ihre Messwerte über den P1-Port aus. Schließen Sie einen Netzwerk-P1-Leser an (WLAN-P1-Dongle, HomeWizard P1 Meter oder ein per ser2net geteiltes USB-P1-Kabel) und geben Sie unten seine Adresse ein. Vom Stromzähler weitergeleitete Gas- und Wasserzähler werden automatisch erkannt.",
+        "es": "Los contadores inteligentes DSMR (Países Bajos, Bélgica, Luxemburgo, Suecia, Hungría) publican sus mediciones en el puerto P1. Conecte un lector P1 de red (dongle P1 Wi-Fi, HomeWizard P1 meter o un cable USB P1 compartido con ser2net) e introduzca su dirección a continuación. Los contadores de gas y agua retransmitidos por el contador eléctrico se detectan automáticamente."
+      },
+      "links": [
+        {
+          "url": "https://github.com/gboulvin/Gladys-DSMR-Smart-Meter#compatible-p1-readers",
+          "label": {
+            "en": "Compatible P1 readers",
+            "fr": "Lecteurs P1 compatibles",
+            "de": "Kompatible P1-Leser",
+            "es": "Lectores P1 compatibles"
+          }
+        },
+        {
+          "url": "https://api-documentation.homewizard.com/docs/v1/telegram",
+          "label": {
+            "en": "HomeWizard local API",
+            "fr": "API locale HomeWizard",
+            "de": "Lokale HomeWizard-API",
+            "es": "API local de HomeWizard"
+          }
+        }
+      ]
+    },
+    {
+      "key": "connection_type",
+      "type": "select",
+      "display": "radio",
+      "label": {
+        "en": "Connection type",
+        "fr": "Type de connexion",
+        "de": "Verbindungsart",
+        "es": "Tipo de conexión"
+      },
+      "required": true,
+      "default": "tcp",
+      "options": [
+        {
+          "value": "tcp",
+          "label": {
+            "en": "TCP stream (P1 dongle, ser2net)",
+            "fr": "Flux TCP (dongle P1, ser2net)",
+            "de": "TCP-Stream (P1-Dongle, ser2net)",
+            "es": "Flujo TCP (dongle P1, ser2net)"
+          }
+        },
+        {
+          "value": "http",
+          "label": {
+            "en": "HTTP (HomeWizard P1 meter...)",
+            "fr": "HTTP (HomeWizard P1 meter...)",
+            "de": "HTTP (HomeWizard P1 Meter...)",
+            "es": "HTTP (HomeWizard P1 meter...)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "host",
+      "type": "string",
+      "label": {
+        "en": "P1 reader address (TCP)",
+        "fr": "Adresse du lecteur P1 (TCP)",
+        "de": "Adresse des P1-Lesers (TCP)",
+        "es": "Dirección del lector P1 (TCP)"
+      },
+      "description": {
+        "en": "IP address or host name of the P1 reader, for a TCP connection.",
+        "fr": "Adresse IP ou nom d'hôte du lecteur P1, pour une connexion TCP.",
+        "de": "IP-Adresse oder Hostname des P1-Lesers, für eine TCP-Verbindung.",
+        "es": "Dirección IP o nombre de host del lector P1, para una conexión TCP."
+      },
+      "placeholder": {
+        "en": "e.g. 192.168.1.50",
+        "fr": "ex. 192.168.1.50",
+        "de": "z. B. 192.168.1.50",
+        "es": "p. ej. 192.168.1.50"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "port",
+      "type": "number",
+      "label": {
+        "en": "TCP port",
+        "fr": "Port TCP",
+        "de": "TCP-Port",
+        "es": "Puerto TCP"
+      },
+      "description": {
+        "en": "Port on which the reader streams the telegrams (23 on most P1 dongles; the port you chose for ser2net).",
+        "fr": "Port sur lequel le lecteur diffuse les télégrammes (23 sur la plupart des dongles P1 ; le port choisi pour ser2net).",
+        "de": "Port, über den der Leser die Telegramme sendet (23 bei den meisten P1-Dongles; der für ser2net gewählte Port).",
+        "es": "Puerto en el que el lector emite los telegramas (23 en la mayoría de los dongles P1; el puerto elegido para ser2net)."
+      },
+      "placeholder": {
+        "en": "e.g. 23",
+        "fr": "ex. 23",
+        "de": "z. B. 23",
+        "es": "p. ej. 23"
+      },
+      "required": false,
+      "default": 23,
+      "min": 1,
+      "max": 65535
+    },
+    {
+      "key": "http_url",
+      "type": "string",
+      "label": {
+        "en": "Telegram URL (HTTP)",
+        "fr": "URL du télégramme (HTTP)",
+        "de": "Telegramm-URL (HTTP)",
+        "es": "URL del telegrama (HTTP)"
+      },
+      "description": {
+        "en": "Address answering the raw telegram, for an HTTP connection. HomeWizard: enable the local API in the app, then use http://<ip>/api/v1/telegram.",
+        "fr": "Adresse qui renvoie le télégramme brut, pour une connexion HTTP. HomeWizard : activez l'API locale dans l'application, puis utilisez http://<ip>/api/v1/telegram.",
+        "de": "Adresse, die das Rohtelegramm liefert, für eine HTTP-Verbindung. HomeWizard: lokale API in der App aktivieren, dann http://<ip>/api/v1/telegram verwenden.",
+        "es": "Dirección que devuelve el telegrama en bruto, para una conexión HTTP. HomeWizard: active la API local en la aplicación y use http://<ip>/api/v1/telegram."
+      },
+      "placeholder": {
+        "en": "e.g. http://192.168.1.50/api/v1/telegram",
+        "fr": "ex. http://192.168.1.50/api/v1/telegram",
+        "de": "z. B. http://192.168.1.50/api/v1/telegram",
+        "es": "p. ej. http://192.168.1.50/api/v1/telegram"
+      },
+      "required": false,
+      "default": ""
+    },
+    {
+      "key": "decryption_key",
+      "type": "secret",
+      "label": {
+        "en": "Decryption key (Luxembourg only)",
+        "fr": "Clé de déchiffrement (Luxembourg uniquement)",
+        "de": "Entschlüsselungsschlüssel (nur Luxemburg)",
+        "es": "Clave de descifrado (solo Luxemburgo)"
+      },
+      "description": {
+        "en": "Smarty meters encrypt their telegrams: enter the 32-character key provided by your grid operator (Creos). Leave empty everywhere else.",
+        "fr": "Les compteurs Smarty chiffrent leurs télégrammes : saisissez la clé de 32 caractères fournie par votre gestionnaire de réseau (Creos). Laissez vide partout ailleurs.",
+        "de": "Smarty-Zähler verschlüsseln ihre Telegramme: Geben Sie den 32-stelligen Schlüssel Ihres Netzbetreibers (Creos) ein. Überall sonst leer lassen.",
+        "es": "Los contadores Smarty cifran sus telegramas: introduzca la clave de 32 caracteres facilitada por su gestor de red (Creos). Déjelo vacío en los demás casos."
+      },
+      "placeholder": {
+        "en": "32 hexadecimal characters",
+        "fr": "32 caractères hexadécimaux",
+        "de": "32 Hexadezimalzeichen",
+        "es": "32 caracteres hexadecimales"
+      },
+      "required": false
+    },
+    {
+      "key": "publish_interval",
+      "type": "number",
+      "label": {
+        "en": "Refresh interval (s)",
+        "fr": "Intervalle de rafraîchissement (s)",
+        "de": "Aktualisierungsintervall (s)",
+        "es": "Intervalo de actualización (s)"
+      },
+      "description": {
+        "en": "How often the readings are sent to Gladys, in seconds. Scene triggers react to every telegram, whatever this interval.",
+        "fr": "Fréquence d'envoi des mesures à Gladys, en secondes. Les déclencheurs de scène réagissent à chaque télégramme, quel que soit cet intervalle.",
+        "de": "Wie oft die Messwerte an Gladys gesendet werden, in Sekunden. Szenen-Auslöser reagieren unabhängig davon auf jedes Telegramm.",
+        "es": "Frecuencia de envío de las mediciones a Gladys, en segundos. Los disparadores de escena reaccionan a cada telegrama, sea cual sea este intervalo."
+      },
+      "required": false,
+      "default": 10,
+      "min": 5,
+      "max": 300
+    }
+  ],
+  "actions": [
+    {
+      "key": "test_connection",
+      "label": {
+        "en": "Test the connection",
+        "fr": "Tester la connexion",
+        "de": "Verbindung testen",
+        "es": "Probar la conexión"
+      },
+      "description": {
+        "en": "Waits for the next telegram and shows what the meter reports.",
+        "fr": "Attend le prochain télégramme et affiche ce que transmet le compteur.",
+        "de": "Wartet auf das nächste Telegramm und zeigt die Angaben des Zählers.",
+        "es": "Espera el siguiente telegrama y muestra lo que transmite el contador."
+      },
+      "timeout_seconds": 30
+    }
+  ],
+  "scene_triggers": [
+    {
+      "key": "tariff_changed",
+      "label": {
+        "en": "Electricity tariff changed",
+        "fr": "Changement de tarif électrique",
+        "de": "Stromtarif gewechselt",
+        "es": "Cambio de tarifa eléctrica"
+      },
+      "description": {
+        "en": "The meter switched tariff. Netherlands: 1 = low (night), 2 = normal. Belgium: 1 = day, 2 = night.",
+        "fr": "Le compteur a changé de tarif. Pays-Bas : 1 = bas (nuit), 2 = normal. Belgique : 1 = jour, 2 = nuit.",
+        "de": "Der Zähler hat den Tarif gewechselt. Niederlande: 1 = Niedertarif (Nacht), 2 = Normaltarif. Belgien: 1 = Tag, 2 = Nacht.",
+        "es": "El contador ha cambiado de tarifa. Países Bajos: 1 = baja (noche), 2 = normal. Bélgica: 1 = día, 2 = noche."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Meter",
+            "fr": "Compteur",
+            "de": "Zähler",
+            "es": "Contador"
+          }
+        },
+        {
+          "key": "tariff",
+          "type": "select",
+          "label": {
+            "en": "New tariff",
+            "fr": "Nouveau tarif",
+            "de": "Neuer Tarif",
+            "es": "Nueva tarifa"
+          },
+          "options": [
+            {
+              "value": "1",
+              "label": {
+                "en": "Tariff 1",
+                "fr": "Tarif 1",
+                "de": "Tarif 1",
+                "es": "Tarifa 1"
+              }
+            },
+            {
+              "value": "2",
+              "label": {
+                "en": "Tariff 2",
+                "fr": "Tarif 2",
+                "de": "Tarif 2",
+                "es": "Tarifa 2"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "tariff",
+          "type": "string",
+          "label": {
+            "en": "New tariff",
+            "fr": "Nouveau tarif",
+            "de": "Neuer Tarif",
+            "es": "Nueva tarifa"
+          }
+        }
+      ]
+    },
+    {
+      "key": "grid_direction_changed",
+      "label": {
+        "en": "Grid injection started or stopped",
+        "fr": "Début ou fin d'injection réseau",
+        "de": "Netzeinspeisung begonnen oder beendet",
+        "es": "Inicio o fin de inyección a la red"
+      },
+      "description": {
+        "en": "The home started sending energy to the grid (solar surplus), or consuming from it again. Must last 30 seconds.",
+        "fr": "Le logement a commencé à injecter sur le réseau (surplus solaire), ou recommence à consommer. Doit durer 30 secondes.",
+        "de": "Das Haus speist ins Netz ein (Solarüberschuss) oder bezieht wieder Strom. Muss 30 Sekunden andauern.",
+        "es": "La vivienda empieza a inyectar en la red (excedente solar) o vuelve a consumir de ella. Debe durar 30 segundos."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Meter",
+            "fr": "Compteur",
+            "de": "Zähler",
+            "es": "Contador"
+          }
+        },
+        {
+          "key": "direction",
+          "type": "select",
+          "label": {
+            "en": "Direction",
+            "fr": "Sens",
+            "de": "Richtung",
+            "es": "Sentido"
+          },
+          "options": [
+            {
+              "value": "export",
+              "label": {
+                "en": "Injecting into the grid",
+                "fr": "Injection sur le réseau",
+                "de": "Einspeisung ins Netz",
+                "es": "Inyección a la red"
+              }
+            },
+            {
+              "value": "import",
+              "label": {
+                "en": "Consuming from the grid",
+                "fr": "Consommation sur le réseau",
+                "de": "Bezug aus dem Netz",
+                "es": "Consumo de la red"
+              }
+            }
+          ]
+        }
+      ],
+      "variables": [
+        {
+          "key": "direction",
+          "type": "string",
+          "label": {
+            "en": "Direction (import/export)",
+            "fr": "Sens (import/export)",
+            "de": "Richtung (import/export)",
+            "es": "Sentido (import/export)"
+          }
+        },
+        {
+          "key": "power",
+          "type": "number",
+          "label": {
+            "en": "Power (W)",
+            "fr": "Puissance (W)",
+            "de": "Leistung (W)",
+            "es": "Potencia (W)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "power_failure_detected",
+      "label": {
+        "en": "Power failure detected",
+        "fr": "Coupure de courant détectée",
+        "de": "Stromausfall erkannt",
+        "es": "Corte de luz detectado"
+      },
+      "description": {
+        "en": "The meter counted a new power failure (fires once power and the reader are back).",
+        "fr": "Le compteur a enregistré une nouvelle coupure (déclenché au retour du courant et du lecteur).",
+        "de": "Der Zähler hat einen neuen Stromausfall gezählt (ausgelöst, sobald Strom und Leser zurück sind).",
+        "es": "El contador ha registrado un nuevo corte (se dispara al volver la luz y el lector)."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Meter",
+            "fr": "Compteur",
+            "de": "Zähler",
+            "es": "Contador"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "failures",
+          "type": "number",
+          "label": {
+            "en": "Power failures (total)",
+            "fr": "Coupures (total)",
+            "de": "Stromausfälle (gesamt)",
+            "es": "Cortes (total)"
+          }
+        },
+        {
+          "key": "long_failures",
+          "type": "number",
+          "label": {
+            "en": "Long power failures (total)",
+            "fr": "Coupures longues (total)",
+            "de": "Lange Stromausfälle (gesamt)",
+            "es": "Cortes largos (total)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "monthly_peak_increased",
+      "label": {
+        "en": "New monthly peak demand",
+        "fr": "Nouvelle pointe mensuelle",
+        "de": "Neue monatliche Lastspitze",
+        "es": "Nuevo pico mensual de demanda"
+      },
+      "description": {
+        "en": "Belgium: the 15-minute average demand reached a new high for the month (capacity tariff).",
+        "fr": "Belgique : la puissance moyenne quart-horaire atteint un nouveau record du mois (tarif capacitaire).",
+        "de": "Belgien: Die 15-Minuten-Durchschnittsleistung erreicht einen neuen Monatshöchstwert (Kapazitätstarif).",
+        "es": "Bélgica: la demanda media cuartohoraria alcanza un nuevo máximo del mes (tarifa de capacidad)."
+      },
+      "fields": [
+        {
+          "key": "device",
+          "type": "select",
+          "source": "devices",
+          "label": {
+            "en": "Meter",
+            "fr": "Compteur",
+            "de": "Zähler",
+            "es": "Contador"
+          }
+        }
+      ],
+      "variables": [
+        {
+          "key": "peak_power",
+          "type": "number",
+          "label": {
+            "en": "Monthly peak (W)",
+            "fr": "Pointe du mois (W)",
+            "de": "Monatsspitze (W)",
+            "es": "Pico del mes (W)"
+          }
+        }
+      ]
+    }
+  ],
+  "scene_actions": [
+    {
+      "key": "get_meter_readings",
+      "label": {
+        "en": "Read the P1 meter",
+        "fr": "Lire le compteur P1",
+        "de": "P1-Zähler auslesen",
+        "es": "Leer el contador P1"
+      },
+      "description": {
+        "en": "Returns the latest power, indexes and tariff for the following actions.",
+        "fr": "Renvoie la puissance, les index et le tarif les plus récents aux actions suivantes.",
+        "de": "Liefert die aktuelle Leistung, Zählerstände und den Tarif an die folgenden Aktionen.",
+        "es": "Devuelve la potencia, los índices y la tarifa más recientes a las acciones siguientes."
+      },
+      "timeout_seconds": 10,
+      "outputs": [
+        {
+          "key": "power_consumed",
+          "type": "number",
+          "label": {
+            "en": "Power consumed (W)",
+            "fr": "Puissance consommée (W)",
+            "de": "Bezugsleistung (W)",
+            "es": "Potencia consumida (W)"
+          }
+        },
+        {
+          "key": "power_injected",
+          "type": "number",
+          "label": {
+            "en": "Power injected (W)",
+            "fr": "Puissance injectée (W)",
+            "de": "Einspeiseleistung (W)",
+            "es": "Potencia inyectada (W)"
+          }
+        },
+        {
+          "key": "net_power",
+          "type": "number",
+          "label": {
+            "en": "Net power (W, negative when injecting)",
+            "fr": "Puissance nette (W, négative en injection)",
+            "de": "Nettoleistung (W, negativ bei Einspeisung)",
+            "es": "Potencia neta (W, negativa al inyectar)"
+          }
+        },
+        {
+          "key": "consumption_index",
+          "type": "number",
+          "label": {
+            "en": "Consumption index (kWh)",
+            "fr": "Index de consommation (kWh)",
+            "de": "Bezugszählerstand (kWh)",
+            "es": "Índice de consumo (kWh)"
+          }
+        },
+        {
+          "key": "injection_index",
+          "type": "number",
+          "label": {
+            "en": "Injection index (kWh)",
+            "fr": "Index d'injection (kWh)",
+            "de": "Einspeisezählerstand (kWh)",
+            "es": "Índice de inyección (kWh)"
+          }
+        },
+        {
+          "key": "tariff",
+          "type": "string",
+          "label": {
+            "en": "Current tariff",
+            "fr": "Tarif en cours",
+            "de": "Aktueller Tarif",
+            "es": "Tarifa actual"
+          }
+        },
+        {
+          "key": "gas_index",
+          "type": "number",
+          "label": {
+            "en": "Gas index (m³)",
+            "fr": "Index gaz (m³)",
+            "de": "Gaszählerstand (m³)",
+            "es": "Índice de gas (m³)"
+          }
+        },
+        {
+          "key": "water_index",
+          "type": "number",
+          "label": {
+            "en": "Water index (m³)",
+            "fr": "Index eau (m³)",
+            "de": "Wasserzählerstand (m³)",
+            "es": "Índice de agua (m³)"
+          }
+        }
+      ]
+    },
+    {
+      "key": "get_daily_summary",
+      "label": {
+        "en": "Today's energy summary",
+        "fr": "Bilan énergétique du jour",
+        "de": "Energiebilanz von heute",
+        "es": "Balance energético de hoy"
+      },
+      "description": {
+        "en": "Returns today's consumption, injection, gas and water, and the peak power of the day.",
+        "fr": "Renvoie la consommation, l'injection, le gaz et l'eau du jour, et le pic de puissance.",
+        "de": "Liefert den heutigen Bezug, die Einspeisung, Gas, Wasser und die Tagesspitzenleistung.",
+        "es": "Devuelve el consumo, la inyección, el gas y el agua de hoy, y el pico de potencia del día."
+      },
+      "timeout_seconds": 10,
+      "outputs": [
+        {
+          "key": "consumption_today",
+          "type": "number",
+          "label": {
+            "en": "Consumed today (kWh)",
+            "fr": "Consommé aujourd'hui (kWh)",
+            "de": "Heute bezogen (kWh)",
+            "es": "Consumido hoy (kWh)"
+          }
+        },
+        {
+          "key": "injection_today",
+          "type": "number",
+          "label": {
+            "en": "Injected today (kWh)",
+            "fr": "Injecté aujourd'hui (kWh)",
+            "de": "Heute eingespeist (kWh)",
+            "es": "Inyectado hoy (kWh)"
+          }
+        },
+        {
+          "key": "gas_today",
+          "type": "number",
+          "label": {
+            "en": "Gas today (m³)",
+            "fr": "Gaz aujourd'hui (m³)",
+            "de": "Gas heute (m³)",
+            "es": "Gas hoy (m³)"
+          }
+        },
+        {
+          "key": "water_today",
+          "type": "number",
+          "label": {
+            "en": "Water today (m³)",
+            "fr": "Eau aujourd'hui (m³)",
+            "de": "Wasser heute (m³)",
+            "es": "Agua hoy (m³)"
+          }
+        },
+        {
+          "key": "peak_power_today",
+          "type": "number",
+          "label": {
+            "en": "Peak power today (W)",
+            "fr": "Pic de puissance du jour (W)",
+            "de": "Spitzenleistung heute (W)",
+            "es": "Pico de potencia de hoy (W)"
+          }
+        }
+      ]
+    }
+  ],
+  "widgets": [
+    {
+      "key": "p1_overview",
+      "label": {
+        "en": "P1 meter overview",
+        "fr": "Compteur P1 : synthèse",
+        "de": "P1-Zähler: Übersicht",
+        "es": "Contador P1: resumen"
+      },
+      "description": {
+        "en": "Live power, today's electricity, gas and water, tariff and connection.",
+        "fr": "Puissance en direct, électricité, gaz et eau du jour, tarif et connexion.",
+        "de": "Aktuelle Leistung, Strom, Gas und Wasser von heute, Tarif und Verbindung.",
+        "es": "Potencia en directo, electricidad, gas y agua de hoy, tarifa y conexión."
+      },
+      "icon": "zap",
+      "settings": [
+        {
+          "key": "chart_interval",
+          "type": "select",
+          "label": {
+            "en": "Chart period",
+            "fr": "Période du graphique",
+            "de": "Diagrammzeitraum",
+            "es": "Periodo del gráfico"
+          },
+          "default": "last-day",
+          "options": [
+            {
+              "value": "last-hour",
+              "label": {
+                "en": "Last hour",
+                "fr": "Dernière heure",
+                "de": "Letzte Stunde",
+                "es": "Última hora"
+              }
+            },
+            {
+              "value": "last-twelve-hours",
+              "label": {
+                "en": "Last 12 hours",
+                "fr": "12 dernières heures",
+                "de": "Letzte 12 Stunden",
+                "es": "Últimas 12 horas"
+              }
+            },
+            {
+              "value": "last-day",
+              "label": {
+                "en": "Last 24 hours",
+                "fr": "24 dernières heures",
+                "de": "Letzte 24 Stunden",
+                "es": "Últimas 24 horas"
+              }
+            },
+            {
+              "value": "last-week",
+              "label": {
+                "en": "Last week",
+                "fr": "Dernière semaine",
+                "de": "Letzte Woche",
+                "es": "Última semana"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "key": "p1_phases",
+      "label": {
+        "en": "P1 meter phases",
+        "fr": "Compteur P1 : phases",
+        "de": "P1-Zähler: Phasen",
+        "es": "Contador P1: fases"
+      },
+      "description": {
+        "en": "Current of each phase against your fuse, voltages, sags and power failures.",
+        "fr": "Courant par phase face à votre disjoncteur, tensions, creux et coupures.",
+        "de": "Strom je Phase gegenüber der Sicherung, Spannungen, Einbrüche, Ausfälle.",
+        "es": "Corriente por fase frente a su fusible, tensiones, huecos y cortes."
+      },
+      "icon": "activity",
+      "settings": [
+        {
+          "key": "fuse_rating",
+          "type": "number",
+          "label": {
+            "en": "Fuse rating per phase (A)",
+            "fr": "Calibre par phase (A)",
+            "de": "Absicherung je Phase (A)",
+            "es": "Calibre por fase (A)"
+          },
+          "placeholder": {
+            "en": "e.g. 25",
+            "fr": "ex. 25",
+            "de": "z. B. 25",
+            "es": "p. ej. 25"
+          },
+          "default": 25,
+          "min": 1,
+          "max": 200
+        }
+      ]
+    }
+  ]
+}
