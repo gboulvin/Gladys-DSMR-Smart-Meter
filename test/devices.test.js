@@ -37,6 +37,16 @@ for (const [name, telegram] of Object.entries(VARIANTS)) {
     );
   });
 
+  test(`${name}: every feature declares a numeric min and max`, () => {
+    // NOT NULL columns in Gladys: a missing one is a 422 when the user adds
+    // the device from the Discovery tab (the fake Gladys does not check it).
+    const devices = buildDiscoveredDevices(createFakeGladys(), parseTelegram(telegram));
+    for (const feature of devices.flatMap((d) => d.features)) {
+      assert.equal(typeof feature.min, 'number', `${feature.external_id}: min`);
+      assert.equal(typeof feature.max, 'number', `${feature.external_id}: max`);
+    }
+  });
+
   test(`${name}: external ids are unique and only one kind of consumption index`, () => {
     const gladys = createFakeGladys();
     const devices = buildDiscoveredDevices(gladys, parseTelegram(telegram));

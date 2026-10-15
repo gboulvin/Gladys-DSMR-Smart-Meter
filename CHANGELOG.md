@@ -10,6 +10,12 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Fixed
+
+- Adding the electricity meter from the Discovery tab failed with an HTTP 422
+  (`t_device_feature.min cannot be null`): the "Current tariff" text feature
+  now declares a minimum and a maximum, like every other feature.
+
 ## [1.0.0] - 2026-10-14
 
 ### Added

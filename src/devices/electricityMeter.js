@@ -276,9 +276,13 @@ export function toDiscoveredFeature(ids, feature) {
     read_only: true,
     has_feedback: false,
     keep_history: true,
+    // Gladys stores min/max as NOT NULL columns: a text feature (the tariff)
+    // needs them too, or creating the device fails with a 422.
+    min: feature.text ? 0 : feature.min,
+    max: feature.text ? 0 : feature.max,
   };
   if (!feature.text) {
-    Object.assign(payload, { unit: feature.unit, min: feature.min, max: feature.max });
+    payload.unit = feature.unit;
   }
   return payload;
 }
