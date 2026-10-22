@@ -8,8 +8,8 @@
     "de": "Lesen Sie Ihren DSMR-Zähler (Strom, Gas, Wasser) über den P1-Port aus.",
     "es": "Lea su contador DSMR (electricidad, gas, agua) a través del puerto P1."
   },
-  "version": "1.0.2",
-  "docker_image": "ghcr.io/gboulvin/gladys-dsmr-smart-meter:1.0.2",
+  "version": "1.0.3",
+  "docker_image": "ghcr.io/gboulvin/gladys-dsmr-smart-meter:1.0.3",
   "gladys_version": ">=5.1.0",
   "cover_image": "https://raw.githubusercontent.com/gboulvin/Gladys-DSMR-Smart-Meter/main/cover.png",
   "categories": ["energy"],

@@ -10,6 +10,8 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+## [1.0.3] - 2026-10-22
+
 ### Security
 
 - `brace-expansion`, pulled in by ESLint, raised to 5.0.12 against the
@@ -53,7 +55,8 @@ the notes of the version's GitHub Release.
 - "Test the connection" button in the configuration screen.
 - English, French, German and Spanish texts and documentation.
 
-[Unreleased]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/compare/v1.0.2...HEAD
+[Unreleased]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/compare/v1.0.3...HEAD
+[1.0.3]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/compare/v1.0.2...v1.0.3
 [1.0.2]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/compare/v1.0.1...v1.0.2
 [1.0.1]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/compare/v1.0.0...v1.0.1
 [1.0.0]: https://github.com/gboulvin/Gladys-DSMR-Smart-Meter/releases/tag/v1.0.0
