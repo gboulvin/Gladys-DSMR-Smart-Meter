@@ -10,7 +10,7 @@ and SDK [`@gladysassistant/integration-sdk`](https://github.com/GladysAssistant/
 - **Local only** (`"transports": ["local"]`): no cloud, no account, the
   telegrams never leave your network.
 - Four languages: English, French, German, Spanish.
-- Requires **Gladys 5.1.0** or later (scene triggers, scene actions, widgets).
+- Requires **Gladys 5.3.0** or later (catalog keywords and countries, scene triggers, scene actions, widgets).
 
 User documentation: [English](docs/en.md) · [Français](docs/fr.md) ·
 [Deutsch](docs/de.md) · [Español](docs/es.md).
