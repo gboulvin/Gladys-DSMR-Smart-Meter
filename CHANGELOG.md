@@ -10,6 +10,13 @@ the notes of the version's GitHub Release.
 
 ## [Unreleased]
 
+### Changed
+
+- Requires Gladys 5.3.0 or later: the manifest declares search keywords and
+  the countries where the integration works, for the new catalog of Gladys
+  5.3.
+- Integration SDK 0.16.
+
 ## [1.0.3] - 2026-10-22
 
 ### Security
